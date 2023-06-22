@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="keywords"
         content="wrappixel, admin dashboard, html css dashboard, web dashboard, bootstrap 5 admin, bootstrap 5, css3 dashboard, bootstrap 5 dashboard, Ample lite admin bootstrap 5 dashboard, frontend, responsive bootstrap 5 admin template, Ample admin lite dashboard bootstrap 5 dashboard template">
     <meta name="description"
@@ -16,7 +16,7 @@
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="plugins/images/favicon.png">
     <!-- Custom CSS -->
-    <link href="css/style1.min.css" rel="stylesheet">
+   <link href="css/style1.min.css" rel="stylesheet">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -43,14 +43,14 @@
         <!-- ============================================================== -->
         <!-- Topbar header - style you can find in pages.scss -->
         <!-- ============================================================== -->
-        {{>adminheader}}
+       {{>adminheader}}
         <!-- ============================================================== -->
         <!-- End Topbar header -->
         <!-- ============================================================== -->
         <!-- ============================================================== -->
         <!-- Left Sidebar - style you can find in sidebar.scss  -->
         <!-- ============================================================== -->
-
+        
         <!-- ============================================================== -->
         <!-- End Left Sidebar - style you can find in sidebar.scss  -->
         <!-- ============================================================== -->
@@ -64,9 +64,9 @@
             <div class="page-breadcrumb bg-white">
                 <div class="row align-items-center">
                     <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-                        <h4 class="page-title">Product Category</h4>
+                        <h4 class="page-title">User Details</h4>
                     </div>
-
+                     
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -83,103 +83,39 @@
                 <!-- Row -->
                 <div class="row">
                     <!-- Column -->
-
+                    
                     <!-- Column -->
                     <!-- Column -->
-                    <div class="col-lg-8 col-xlg-9 col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <form class="form-horizontal form-material" action="add_product" method="post"
-                                    enctype="multipart/form-data">
-                                    <div class="form-group mb-4">
-                                        <label class="col-md-12 p-0">Category Name</label>
-                                        <div class="col-md-12 border-bottom p-0">
-                                            {{!-- <input type="text" class="form-control p-0 border-0" name="catname">
-                                        </div> --}}
-                                        <select name="catid" id="" class="form-control p-0 border-0">
-                                            {{#each catdata}}
-                                            <option value="{{this._id}}">{{this.catname}}</option>
-                                            {{/each}}
-
-
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group mb-4">
-                                        <label class="col-md-12 p-0">Product Name</label>
-                                        <div class="col-md-12 border-bottom p-0">
-                                            <input type="text" class="form-control p-0 border-0" name="pname">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group mb-4">
-                                        <label class="col-md-12 p-0">Price</label>
-                                        <div class="col-md-12 border-bottom p-0">
-                                            <input type="text" class="form-control p-0 border-0" name="price">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group mb-4">
-                                        <label class="col-md-12 p-0">Qty</label>
-                                        <div class="col-md-12 border-bottom p-0">
-                                            <input type="text" class="form-control p-0 border-0" name="qty">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group mb-4">
-                                        <label class="col-md-12 p-0">Image</label>
-                                        <div class="col-md-12 border-bottom p-0">
-                                            <input type="file" class="form-control p-0 border-0" name="file">
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="form-group mb-4">
-                                        <div class="col-sm-12">
-                                            <button class="btn btn-success" type="submit">Add Product</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    
                     <!-- Column -->
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="white-box">
-                            <h3 class="box-title">Products</h3>
-
+                            <h3 class="box-title">Users</h3>
+                            
                             <div class="table-responsive">
                                 <table class="table text-nowrap">
                                     <thead>
                                         <tr>
-                                            <th class="border-top-0">Category Name</th>
-                                            <th class="border-top-0">Product Name</th>
-                                            <th class="border-top-0">Price</th>
-                                            <th class="border-top-0">Qty</th>
-                                            <th class="border-top-0">Image</th>
-                                            <th class="border-top-0" colspan="2">Action</th>
+                                            <th class="border-top-0">Username</th>
+                                            <th class="border-top-0">Email</th>
+                                            <th class="border-top-0">Phone</th>
+
+                                                                                   
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{#each proddata}}
+                                        {{#each userdata}}
                                         <tr>
-                                            {{#each this.category}}
-                                            <td>{{this.catname}}</td>
-                                            {{/each}}
+                                            <td>{{this.uname}}</td>
+                                            <td>{{this.email}}</td>
+                                            <td>{{this.phone}}</td>
 
-                                            <td>{{this.pname}}</td>
-                                            <td>{{this.price}}</td>
-                                            <td>{{this.qty}}</td>
-                                            <td><img src="productimage/{{this.img}}" alt="" height="40px" width="40px">
-                                            </td>
-
-                                            <td><a href="editproduct?pid={{this._id}}" class="btn btn-primary">edit</a></td>
-                                            <td><a href="deleteproduct?pid={{this._id}}" class="btn btn-danger">delete</a></td>
+                                            {{!-- <td><a href="editcategory?catid={{this._id}}" class="btn btn-primary">edit</a></td>
+                                            <td><a href="deletecategory?catid={{this._id}}" class="btn btn-danger">delete</a></td> --}}
                                         </tr>
-                                        {{/each}}
+                                        {{/each}}                                      
                                     </tbody>
                                 </table>
                             </div>
@@ -187,7 +123,7 @@
                     </div>
                 </div>
 
-
+                
                 <!-- Row -->
                 <!-- ============================================================== -->
                 <!-- End PAge Content -->
