@@ -68,14 +68,12 @@ router.get("/admin_logout", aauth, async (req, resp) => {
 // *************************** Category***********************************
 
 const Category = require("../model/categories")
-const Product = require("../model/products");
-// const products = require("../model/products");
 
 router.get("/category", async (req, resp) => {
     try {
-        const data = await Category.find()
+        const catdata = await Category.find()
 
-        resp.render("category", { catdata: data })
+        resp.render("category", { catdata: catdata })
     } catch (error) {
 
     }
@@ -83,8 +81,27 @@ router.get("/category", async (req, resp) => {
 
 router.post("/add_category", aauth, async (req, resp) => {
     try {
-        const cat = new Category(req.body)
-        await cat.save();
+        if(req.body.id == "")
+        {
+            const cat = new Category(req.body)
+            await cat.save();
+            resp.redirect("category")
+        }
+        else
+        {
+            await Category.findByIdAndUpdate(req.body.id,{catname:req.body.catname})
+            resp.redirect("category")
+        }
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+router.get("/deletecategory", async (req, resp) => {
+    try {
+        const id = req.query.catid
+        const data = await Category.findByIdAndDelete(id)
         resp.redirect("category")
     } catch (error) {
         console.log(error);
@@ -94,45 +111,24 @@ router.post("/add_category", aauth, async (req, resp) => {
 router.get("/editcategory", async (req, resp) => {
     try {
         const id = req.query.catid
-        const data = await Category.findOne({ _id: id })
-        resp.render("updateCategory", { cdata: data })
-    } catch (error) {
-        console.log(error);
-    }
-})
-
-router.get("/deletecategory", async (req, resp) => {
-    try {
-        const id = req.query.catid
-        const data = await Category.findByIdAndDelete(id)
-        //   fs.unlinkSync("public/img/"+udata.img)
-        resp.redirect("category")
+        const data = await Category.findOne({_id:id})
+        const catdata = await Category.find()
+        resp.render("category",{edata:data,catdata:catdata})
     } catch (error) {
         console.log(error);
     }
 })
 
 
-
-// router.post("/update_category", async (req, resp) => {
-//     try {
-//         const id = req.body.id
-//         // console.log(id)
-//         const cdata = await Category.findByIdAndUpdate(id, req.body)
-//         // console.log(cdata);
-//         resp.redirect("category")
-//     } catch (error) {
-//         console.log(error);
-//     }
-// })
 /****************************product*************************/
 
+const Product = require("../model/products");
 
 router.get("/products",aauth, async (req, resp) => {
     try {
         const data = await Category.find()
         const prod = await Product.aggregate([{$lookup:{from:"categories",localField:"catid",foreignField:"_id",as:"category"}}])
-        // console.log(prod[0].category[0]);
+        // console.log(prod[].category[0]);
         resp.render("products", { catdata: data,proddata:prod })
     } catch (error) {
         console.log(error);
@@ -142,31 +138,64 @@ router.get("/products",aauth, async (req, resp) => {
 router.post("/add_product",upload.single("file"),async (req,resp)=>{
     try {
 
-//    if()
+        if(req.body.id == "")
+        {
+            const prod = new Product({
+                catid: req.body.catid,
+                pname: req.body.pname,
+                price: req.body.price,
+                qty: req.body.qty,
+                img: req.file.filename
+            })
+            await prod.save()
+            resp.redirect("products")
+        }
+        else
+        {
+            await Product.findByIdAndUpdate(req.body.id,{
+                catid:req.body.catid,
+                pname:req.body.pname,
+                price:req.body.price,
+                qty:req.body.qty,
+                img:req.file.filename
+            })
+            resp.redirect("products")
 
-        const prod = new Product({
-            catid: req.body.catid,
-            pname: req.body.pname,
-            price: req.body.price,
-            qty: req.body.qty,
-            img: req.file.filename
-        })
-        await prod.save()
+        }
+
+        } catch (error) {
+        console.log(error);
+    }
+})
+
+router.get("/deleteproduct",async(req,resp)=>{
+    try {
+        const id = req.query.pid
+        const data = await Product.findByIdAndDelete(id)
+        // fs.unlinkSync("public/pro/"+data.img)
+
+
         resp.redirect("products")
+
     } catch (error) {
         console.log(error);
     }
 })
 
-// router.get("/editproduct", async (req, resp) => {
-//         const id = req.query.pid
-//         const data = await Product.findOne({ _id: id })
-//     try {
-//         resp.render("updateProducts", { pdata: data })
-//     } catch (error) {
-//         console.log(error);
-//     }
-// })
+router.get("/editproduct", async (req, resp) => {
+    try {
+        const id = req.query.pid
+        const data = await Product.findOne({_id:id})
+        const catdata = await Category.find()
+        const prod = await Product.aggregate([{$lookup:{from:"categories",localField:"catid",foreignField:"_id",as:"category"}}])
+        resp.render("products",{edata:data,catdata:catdata,proddata:prod})
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+
 
 
 /****************USER S******************* */

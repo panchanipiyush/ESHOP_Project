@@ -30,6 +30,9 @@ hbs.registerPartials(partialPath)
 app.use(express.static(publicPath))
 
 
+
+
+
 app.use("/", require("../router/userrouter"))
 app.use("/", require("../router/adminrouter"))
 
