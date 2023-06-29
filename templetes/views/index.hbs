@@ -20,9 +20,19 @@
 
     <!-- Libraries Stylesheet -->
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
+    
     <!-- Customized Bootstrap Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+    <script>
+        function addCart(pid)
+        {
+           
+           $.get("add_cart",{pid},function(rt){
+              alert(rt)
+           })
+           
+        }
+    </script>
 </head>
 
 <body>
@@ -87,7 +97,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between bg-light border">
                         <a href="details?pid={{this._id}}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                        <a href="add_cart?pid={{this._id}}" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                        <button onclick="addCart('{{this._id}}')" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</button>
                     </div>
                 </div>
             </div>

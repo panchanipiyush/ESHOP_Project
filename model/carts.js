@@ -7,14 +7,14 @@ const cartSchema = new mongoose.Schema({
     pid:{
         type: mongoose.Schema.Types.ObjectId
     },
-    price:{
-        type:Number
+    price :{
+        type : Number
     },
-    qty:{
-        type:Number
+    qty : {
+        type : Number
     },
-    total:{
-        type:Number
+    total : {
+        type :  Number
     }
 })
 
