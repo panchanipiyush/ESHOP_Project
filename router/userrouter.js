@@ -2,6 +2,8 @@ const router = require("express").Router()
 const auth = require("../middleware/auth")
 const Category = require("../model/categories")
 const Product = require("../model/products")
+const Razorpay = require("razorpay")
+// const Order = require("../model/orders")
 
 router.get("/", async (req, resp) => {
     try {
@@ -91,7 +93,7 @@ router.post("/do_login", async (req, resp) => {
 
 /*******************CART***************************** */
 const Cart = require("../model/carts")
-const e = require("express")
+
 
 router.get("/cart", auth, async (req, resp) => {
 
@@ -99,85 +101,197 @@ router.get("/cart", auth, async (req, resp) => {
     try {
         // const cartdata = await Cart.find({ uid: user._id })
         const cartdata = await Cart.aggregate([
-            {$match:{uid:user._id}},
-            {$lookup:{from:"products",localField:"pid",foreignField:"_id",as:"product"}}
+            { $match: { uid: user._id } },
+            { $lookup: { from: "products", localField: "pid", foreignField: "_id", as: "product" } }
         ])
         var sum = 0;
         for (var i = 0; i < cartdata.length; i++) {
             // console.log(cartdata[i].total);
             sum = sum + cartdata[i].total;
         }
-        resp.render("cart", { currentuser: user.uname, cartdata: cartdata,Total:sum })
+        resp.render("cart", { currentuser: user.uname, cartdata: cartdata, Total: sum })
     } catch (error) {
         console.log(error);
     }
 })
 
-
 router.get("/add_cart", auth, async (req, resp) => {
-            const pid = req.query.pid
-            const uid = req.user._id
-    
-            try {
+    const pid = req.query.pid
+    const uid = req.user._id
+    // const pqty = req.query.qty
+
+    try {
         
-                const data = await Cart.findOne({$and : [{pid:pid},{uid:uid}]})
-                if(data){
-                    var qty = data.qty;
-                    qty++;
-                    var price = data.price * qty
-                    await Cart.findByIdAndUpdate(data._id,{qty:qty,total:price});
-                    resp.send("Product added into cart !!!")
-                }
-                else
-                {
-                const pdata = await Product.findOne({_id:pid})
-                const cart = new Cart({
-                    uid:uid,
-                    pid:pid,
-                    price:pdata.price,
-                    qty:1,
-                    total:pdata.price
-                })
-                await cart.save()
-                resp.send("Product added into cart !!!")
-                }
-             } catch (error) {
-                console.log(error);
-             }
+        const pdata = await Product.findOne({ _id: pid })
+        const data = await Cart.findOne({ $and: [{ pid: pid }, { uid: uid }] })
+
+        if (data) {
+        //    console.log(data.qty);
+        //    console.log(pdata.qty);
+            if(data.qty < pdata.qty){
+            var qty = data.qty;
+            qty++;
+            var price = data.price * qty
+            await Cart.findByIdAndUpdate(data._id, { qty: qty, total: price });
+            resp.send("Product added into cart !!!")
+            }
+            else
+            {
+            resp.send(" Product out of stock ");
+            }
+        }
+        else {
+            const pdata = await Product.findOne({ _id: pid })
+            const cart = new Cart({
+                uid: uid,
+                pid: pid,
+                price: pdata.price,
+                qty: 1,
+                total: pdata.price
+            })
+            await cart.save()
+            resp.send("Product added into cart !!!")
+        }
+    } catch (error) {
+        console.log(error);
+    }
 
 })
-router.get("/removefromcart",async(req,resp)=>{
+
+router.get("/removefromcart", async (req, resp) => {
     try {
         const _id = req.query.pid;
         await Cart.findByIdAndDelete(_id)
-        resp.send("Product remived from cart")
+        resp.send("Product removed from cart")
         // resp.redirect("cart")
     } catch (error) {
         console.log(error);
     }
 })
 
-router.get("/changeqty",auth,async (req,resp)=>{
+router.get("/changeqty", auth, async (req, resp) => {
     try {
         const cid = req.query.cid
         const value = req.query.value
 
-        const cartdata = await Cart.findOne({_id:cid})
-        var qty = cartdata.qty+Number(value) 
-        if(qty!=0)
-        { 
-        var price = cartdata.price*qty
-        await Cart.findByIdAndUpdate(cid,{qty : qty,total:price})
-        resp.send("updated")
-        }
-        else
+        const cartdata = await Cart.findOne({ _id: cid })
+        const pid = cartdata.pid
+        // console.log(pid);
+
+        const pdata = await Product.findOne({ _id: pid })
+        console.log("1->cat qty + "+cartdata.qty);
+
+        if(cartdata.qty <= pdata.qty)
         {
+            console.log("2->value : "+value);
+            var qty = cartdata.qty + Number(value)
+            console.log("3->increment qty : "+qty);
+        if (qty != 0) {
+            var price = cartdata.price * qty
+            await Cart.findByIdAndUpdate(cid, { qty: qty, total: price })
+            resp.send("updated")
+        }
+        else {
             resp.send("")
         }
-} catch (error) {
-    console.log(error);
-}
+    }
+    else
+    {
+        resp.send(" Product out of stock ");
+    }
+        
+    } catch (error) {
+        console.log(error);
+    }
 })
 
+//********************payment******************** */
+var nodemailer = require('nodemailer')
+const Order = require("../model/orders")
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'panchani47@gmail.com',
+        pass: 'zofktpmofsyxsjwv'
+    }
+});
+router.get("/payment", (req, resp) => {
+
+    const amt = req.query.amt;
+    var instance = new Razorpay({
+        key_id: 'rzp_test_T9BoEU6kfey5L8',
+        key_secret: 'DIdxD6Em4LM0CCVc5ZuTQMV0',
+    });
+
+    var options = {
+        amount:Number(amt)*100 ,  // amount in the smallest currency unit
+        currency: "INR",
+        receipt: "order_rcptid_11"
+      };
+
+      instance.orders.create(options, function(err, order) {
+        resp.send(order)
+       });
+
+
+
+})
+
+router.get("/confirmOrder", auth, async (req, resp) => {
+    try {
+        const payid = req.query.pid
+        const uid = req.user._id
+
+        const cartProduct = await Cart.find({ uid: uid })
+        var productlist = [];
+        var alltotal = 0;
+        var row = "";
+        for (var i = 0; i < cartProduct.length; i++) {
+
+            const prod = await Product.findOne({ _id: cartProduct[i].pid })
+
+            var pname = prod.pname
+            var price = prod.price
+            var qty = cartProduct[i].qty
+            var total = Number(price) * Number(qty)
+
+            productlist[i] = {
+                pname: pname,
+                price: price,
+                qty: qty,
+                total: total
+            }
+            alltotal = alltotal + total;
+            row = row + "<tr><td>" + pname + "</td><td>" + price + "</td><td>" + qty + "</td><td>" + total + "</td></tr>"
+        }
+
+        const order = new Order({ 
+            payid: payid, 
+            uid: uid, 
+            product: productlist,
+            date : Date.now(),
+            total: alltotal })
+        await order.save()
+        await Cart.deleteMany({uid:uid})
+        var mailOptions = {
+            from: 'panchani47@gmail.com',
+            to: req.user.email,
+            subject: 'Order Conformation',
+            html: "<table border='1'><tr><th>ProductName</th><th>Price</th><th>qty</th><th>Total</th></tr>" + row + "<tr><td>All total</td><td>" + alltotal + "</td></tr></table>"
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                resp.send("Order confirmed !!!")
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+    }
+})
 
 module.exports = router;

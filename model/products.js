@@ -8,10 +8,11 @@ const productShema = new mongoose.Schema({
         type:String
     },
     price:{
-        type:Number
+        type:Number        
     },
     qty:{
         type:Number
+        // default : 1
     },
     img:{
         type: String

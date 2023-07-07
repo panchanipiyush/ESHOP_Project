@@ -18,6 +18,8 @@ mongoose.connect(DB_URL).then(() => {
     console.log(err);
 })
 
+const cors = require("cors")
+app.use(cors())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
 const publicPath = path.join(__dirname, "../public")
