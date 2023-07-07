@@ -118,43 +118,33 @@ router.get("/cart", auth, async (req, resp) => {
 router.get("/add_cart", auth, async (req, resp) => {
     const pid = req.query.pid
     const uid = req.user._id
-    // const pqty = req.query.qty
 
     try {
-        
-        const pdata = await Product.findOne({ _id: pid })
-        const data = await Cart.findOne({ $and: [{ pid: pid }, { uid: uid }] })
 
-        if (data) {
-        //    console.log(data.qty);
-        //    console.log(pdata.qty);
-            if(data.qty < pdata.qty){
+        const data = await Cart.findOne({$and : [{pid:pid},{uid:uid}]})
+        if(data){
             var qty = data.qty;
             qty++;
             var price = data.price * qty
-            await Cart.findByIdAndUpdate(data._id, { qty: qty, total: price });
-            resp.send("Product added into cart !!!")
-            }
-            else
-            {
-            resp.send(" Product out of stock ");
-            }
-        }
-        else {
-            const pdata = await Product.findOne({ _id: pid })
-            const cart = new Cart({
-                uid: uid,
-                pid: pid,
-                price: pdata.price,
-                qty: 1,
-                total: pdata.price
-            })
-            await cart.save()
+            await Cart.findByIdAndUpdate(data._id,{qty:qty,total:price});
             resp.send("Product added into cart !!!")
         }
-    } catch (error) {
+        else
+        {
+        const pdata = await Product.findOne({_id:pid})
+        const cart = new Cart({
+            uid:uid,
+            pid:pid,
+            price:pdata.price,
+            qty:1,
+            total:pdata.price
+        })
+        await cart.save()
+        resp.send("Product added into cart !!!")
+        }
+     } catch (error) {
         console.log(error);
-    }
+     }
 
 })
 
@@ -169,40 +159,26 @@ router.get("/removefromcart", async (req, resp) => {
     }
 })
 
-router.get("/changeqty", auth, async (req, resp) => {
+router.get("/changeqty",auth,async (req,resp)=>{
     try {
         const cid = req.query.cid
         const value = req.query.value
 
-        const cartdata = await Cart.findOne({ _id: cid })
-        const pid = cartdata.pid
-        // console.log(pid);
-
-        const pdata = await Product.findOne({ _id: pid })
-        console.log("1->cat qty + "+cartdata.qty);
-
-        if(cartdata.qty <= pdata.qty)
-        {
-            console.log("2->value : "+value);
-            var qty = cartdata.qty + Number(value)
-            console.log("3->increment qty : "+qty);
-        if (qty != 0) {
-            var price = cartdata.price * qty
-            await Cart.findByIdAndUpdate(cid, { qty: qty, total: price })
-            resp.send("updated")
+        const cartdata = await Cart.findOne({_id:cid})
+        var qty = cartdata.qty+Number(value) 
+        if(qty!=0)
+        { 
+        var price = cartdata.price*qty
+        await Cart.findByIdAndUpdate(cid,{qty : qty,total:price})
+        resp.send("updated")
         }
-        else {
+        else
+        {
             resp.send("")
         }
-    }
-    else
-    {
-        resp.send(" Product out of stock ");
-    }
-        
-    } catch (error) {
-        console.log(error);
-    }
+} catch (error) {
+    console.log(error);
+}
 })
 
 //********************payment******************** */
